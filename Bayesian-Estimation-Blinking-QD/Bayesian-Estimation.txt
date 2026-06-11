@@ -1,0 +1,1258 @@
+You may also like
+
+PAPER • OPEN ACCESS
+
+Bayesian estimation of switching rates for blinking
+emitters
+To cite this article: Jemy Geordy et al 2019 New J. Phys. 21 063001
+
+View the article online for updates and enhancements.
+
+- Efficient characterization of blinking
+quantum emitters from scarce data sets
+via machine learning
+G Landry and C Bradac
+- Quantum jumps and photon statistics in
+fluorescent systems coupled to classically
+fluctuating reservoirs
+Adrián A Budini
+- Quantum trajectories for realistic
+photodetection: I. General formalism
+P Warszawski and H M Wiseman
+
+This content was downloaded from IP address 202.3.77.206 on 27/05/2026 at 05:24
+
+New J. Phys. 21 (2019) 063001
+
+https://doi.org/10.1088/1367-2630/ab1dfd
+
+PAPER
+
+Bayesian estimation of switching rates for blinking emitters
+OPEN ACCESS
+
+Jemy Geordy1,2, Lachlan J Rogers1,2, Cameron M Rogers3, Thomas Volz1,2 and Alexei Gilchrist1,2
+RECEIVED
+
+25 December 2018
+REVISED
+
+9 April 2019
+ACCEPTED FOR PUBLICATION
+
+30 April 2019
+
+1
+2
+3
+
+Department of Physics and Astronomy, Macquarie University, Sydney, NSW 2122, Australia
+ARC Centre of Excellence for Engineered Quantum Systems, Australia
+Launceston Church Grammar School, Mowbray Heights, Tasmania, 7248, Australia
+
+E-mail: lachlan.j.rogers@quantum.diamonds
+Keywords: blinking, Bayesian estimation, quantum emitter, hidden markov chain, switching rates
+
+PUBLISHED
+
+3 June 2019
+
+Abstract
+Single quantum light emitters are valuable resources for engineered quantum systems. They can
+function as robust single-photon generators, allow optical control of single spins, provide readout
+capabilities for atomic-scale sensors, and provide interfaces between stationary and ﬂying qubits.
+Any further distribution of
+Environmental factors can lead to single emitters exhibiting ‘blinking’, whereby the ﬂuorescence level
+this work must maintain
+attribution to the
+switches between on and off states. Detailed characterisation of this blinking behaviour including
+author(s) and the title of
+the work, journal citation determining the switching rates is often a powerful way to gain understanding about the underlying
+and DOI.
+physical mechanisms. While simple thresholds can be used to identify the on and off intervals and thus
+extract the rates from the time-series of counts for bright emitters with low background noise, such
+approaches become difﬁcult for emitters ﬂuorescing at low levels, high noise, or switching at fast rates.
+We develop a Bayesian approach capable of inferring switching rates directly from the time-series.
+This is able to deal with high levels of noise and fast switching in ﬂuorescence traces. Moreover, the
+Bayesian inference also yields a robust picture of the parameter uncertainties, providing a beneﬁt also
+for bright emitters in low-noise settings. The technique can be adapted to identify the underlying
+states as well as extracting the rates of switching. Finally, our method is applicable to a broad range of
+systems that show behaviour analogous to a blinking emitter.
+Original content from this
+work may be used under
+the terms of the Creative
+Commons Attribution 3.0
+licence.
+
+1. Introduction
+A wide variety of natural and artiﬁcial systems exhibit an unwanted stochastic switching between states,
+sometimes called telegraph noise [1]. To remove this unwanted behaviour it is necessary to understand its
+causes, and to gain an understanding of the causes it is necessary to be able to measure the characteristics of the
+switching. A prominent example of a system exhibiting this random switching of state is provided by quantum
+emitters where the behaviour is called blinking due to large intermittent changes in the observed ﬂuorescence.
+Such emitters are valuable resources for engineered quantum systems, and the presence of blinking limits their
+applicability. If fact, most quantum light emitters exhibit intermittency in their ﬂuorescence under continuous
+excitation, including diamond colour centres [2–6], quantum dots [7–11], nanowires [8, 12], nanorods [12],
+organic semiconductors [13], molecules [14–16], and other systems [17, 18]. In these quantum emitters, the
+changes of state are typically caused by physical mechanisms that ﬂuctuate randomly (as opposed to
+periodically) and often without regard for their history. The observed ﬂuorescence provides a convenient
+connection to the underlying state and it is important to understand observed blinking statistics in order to
+analyse the cause of the state switches. Key insights can be distilled from the switching rates and how these
+depend on relevant parameters, and yet these rates are often the hardest to extract from the raw time series of
+photon counts in particular for low-intensity light signals or noisy data.
+Blinking typically leads to step-like switches in the ﬂuorescence time trace, as illustrated in ﬁgure 1(a). The
+most common method used to analyse the on and off states from a blinking time series is threshold analysis
+[2, 19, 20], illustrated for simulated data in ﬁgure 1(a). However, the choice of threshold intensity is essentially
+arbitrary, and it can signiﬁcantly inﬂuence the statistics of the on and off states [21–24]. The threshold technique
+© 2019 The Author(s). Published by IOP Publishing Ltd on behalf of the Institute of Physics and Deutsche Physikalische Gesellschaft
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+Figure 1. Not all blinking time traces suit analysis in terms of a threshold. (a) Simulated data with clear on and off states. The dotted line
+represents a threshold, which is used to distinguish the on and off states. (b) Simulated blinking time trace with higher background
+noise but same switching rates as in (a). (c) A high rate of switching events relative to the detector interval makes it harder even to see
+the blinking.
+
+becomes difﬁcult to use for emitters ﬂuorescing at low signal-to-noise ratios as depicted in ﬁgure 1(b), where the
+distributions of counts from the on and off states to overlap. Thresholds are not at all helpful if the blinking
+switches at rates high relative to the detector interval as shown in an extreme case in ﬁgure 1(c). Here we present a
+method utilising Bayesian inference to ﬁnd the blinking rates directly from the photon-count data series,
+without requiring a threshold. The method works for blinking quantum light emitters independent of their
+brightness or speed of switching. This method is shown to be more accurate than threshold analysis, more
+broadly applicable, and more capable of assessing the measurement uncertainty. Hence our method allows for a
+better understanding of the mechanism behind the actual blinking phenomenon.
+We model the blinking emitters on a hidden, discrete and continuous-time Markov chain. The accumulated
+photon counts over a detector interval obscure or hide the underlying process which is assumed to be
+memoryless. This naturally models a system whose time spent in each on and off state decays exponentially
+[1, 2, 17]. The Bayesian inference on this model then allows us to determine the underlying switching rates of
+these hidden states. Some more complex physical systems have been found to have on and off intervals instead
+distributed according to a power law [19, 25–27], indicating non-Markovian behaviour, or memory effects in
+the system. This precludes the independencies that lead to elegant factorisation in the derivations presented
+here, and so the computational processes would need to be signiﬁcantly extended to tackle such data. However,
+the problems identiﬁed here for threshold analysis certainly also apply to non-exponential distributions. In fact,
+reliable discrimination between exponential and power law dependence is only possible by careful and reliable
+analysis of the blinking data.
+We have modelled three behaviours for the state relative to the detector interval. In section 2 we analyse a
+simple blinking process using a discrete time Markov chain (DTMC), where the emitter is assumed to be either
+on or off during each detector interval and switching of state can occur only at the interval boundaries. The
+extreme case of continuous switching within the detector intervals is analysed in section 3 using a continuous
+time Markov continuous time Markov chain (CTMC). In real experiments only a ﬁnite number of switching
+events are likely to occur within any given detector interval rather than no switching or arbitrary switching
+events. Such a process is discussed in section 4 using a discrete time Markov chain and considering subintervals
+inside the detector interval. Finally in section 5 we show how to use the Bayesian analysis to infer the state at each
+time step.
+
+2
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+Figure 2. Markov modelling the evolution of the state. Left: a discrete time Markov with d time steps per detection interval. In this case
+ad and bd are the switching probabilities. Right: a continuous time Markov process where ra and rb are switching rates.
+
+2. DTMC single-step model
+2.1. Model description
+The critical step in making an inference on the blinking rates from the observed ﬂuorescence data is constructing
+a model of how the counts arise given the structure of the problem. We consider that the emitter has only two
+relevant states that affect the ﬂuorescence levels: an on state and an off state, and there is some mechanism that
+causes the emitter to switch between these states. We model the switching as a Markov, where the current state is
+sufﬁcient to determine the future dynamics. For simplicity, we begin by considering the state to be ﬁxed for the
+entire detector interval and it can only switch at the boundaries with switch-on and switch-off probabilities α1
+and β1 respectively, where the subscript represents the allowed number of state changes per detector interval.
+This notation anticipates a DTMC which allows for multiple switching events per detector interval, which is
+discussed in later sections. The Markov chain for this more general model is depicted on the left in ﬁgure 2,
+where d=1 corresponds to the single switching opportunity case.
+The blinking model also contains the ﬂuorescence and background rates λ and μ. If the emitter is in an offstate then the detector can still register counts (known as dark-counts) due to noise processes in the detector or
+electronics. These counts are well modelled by a Poissonian process with a rate μ. While ﬂuorescing, it is
+assumed that the emitter is being driven by a strong classical pump so the statistics of the photon counts are also
+well modelled by a Poissonian process (i.e. shot noise) with an overall rate λ that includes detector inefﬁciencies.
+The observed counts are then Poissonian with a rate of either μ or m + l since the combination of two
+independent Poissonian processes is again Poissonian. Given λ, μ, and the state st - 1 at the beginning of timestep t, the probability of seeing ct counts is
+⎧  (c t ∣m)
+st - 1 = 0
+P (c t ∣st - 1 l m I1) = ⎨
+,
+⎩  (c t ∣m + l) st - 1 = 1
+
+(1)
+
+where st−1=1 represents the on state and st−1=0 represents the off state for interval t, I1 tags the single interval
+model as the background information, and  (c∣ℓ ) = c ℓ exp (-ℓ ) c! is the probability of observing c counts
+given a Poisson distribution with rate ℓ .
+Clearly, if we knew the state of the emitter at each data point it would be a simple matter to infer the
+switching rates. Unfortunately these states are not directly observable, and worst still, because the states are not
+observed the switching probabilities become dependent on the entire history of the count data. This makes the
+inference considerably more involved.
+We can summarize the dependencies amongst the variables by the Bayesian network (BN) [28] shown in
+ﬁgure 3. The BN can be used to determine conditional independencies between the problem variables, using the
+property of d-separability. In the BN, st−1 and st represents the state of the emitter at the boundaries of the tth
+detector interval, but for the single-step model I1 the initial state extends for the whole duration so the dashed
+arrows in the ﬁgure should be omitted. That is, equation (1) depends only on st−1 (this will change for multi-step
+models). The key variable independencies are the following
+
+3
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+Figure 3. A partial Bayesian network representing the joint probability distribution of problem parameters. The pattern of nodes and
+connections inside the central grayed region representing detection interval t are repeated for each data value. We are estimating
+parameters ra , rb , λ, and μ given the observed counts ct. For the discrete time models ra and rb represent the probabilities ad and bd
+respectively. Enough of the full network is drawn to be able to easily determine the variable independencies. In the case of a single step
+over the detector interval, st−1 is the state over the entire interval and the dashed arrows are absent. In all other cases st−1 and st are the
+states at the boundaries of the detector interval.
+
+a1 ^b1 ^l^m∣I1
+
+(2)
+
+st ^su∣st - 1 W1 (u < t - 1)
+c t ^c u, s v∣st - 1 W1 (u ¹ t , v ¹ t ) ,
+
+(3)
+(4)
+
+where W1 = a1 b1 l m I1 for compactness. We will make use of these independencies in the following section.
+2.2. Bayesian inference
+
+
+Ultimately, the quantity we want to infer is P (a1 b1∣c I1) where c º c1 c2 ¼ cN is the set of count data
+obtained over N detector intervals. Using Baye’s rule, the posterior probability distribution of a1 and b1 can be
+written as,
+
+P (a1 b1∣I ) P (c ∣a1 b1 I1)
+
+P (a1 b1∣c I1) =
+.
+(5)
+
+P (c ∣I1)
+The rates of ﬂuorescence and background counts, λ and μ can be added then removed by marginalisation,
+
+P (a1 b1∣I1) P (c l m∣a1 b1 I1)
+
+P (a1 b1∣c I1) = dl dm
+
+P (c ∣I1)
+1
+
+dl dmP (a1 b1 l m∣I1) P (c ∣W1).
+=
+
+P (c ∣I1)
+
+ò ò
+
+(6)
+
+ò ò
+
+(7)
+
+Note that if μ and λ are known independently then the integrals in (7) are unnecessary and this will be true in all
+the models we develop. Given (2) we can factor P (a1 b1 l m∣I1) = P (a1∣I1) P (b1∣I1) P (l∣I1) P (m∣I1). We will go
+further and take them all as constant over some initial range so that
+1
+
+
+P (a1 b1∣c I1) =
+dl dmP (c ∣W1)
+(8)
+
+and with the normalisation factor  to be determined at the end.
+
+As stated earlier, if all the states s º s0 s1 ¼ sN - 1 were known together with Ω1 the probability of all the
+counts would be easily determined. We can use the same trick of adding these parameters then marginalising
+over them so that,
+
+
+ 
+
+P (c ∣W1) = å P (c s ∣W1) = å P (c ∣s W1) P (s ∣W1) ,
+(9)
+
+ò ò
+
+
+s
+
+
+s
+
+4
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+where å s = å s ¼ å s
+0
+
+N-1
+
+ 
+. Using the independencies (4), P (c ∣s W1) can be simpliﬁed to
+N
+ 
+P (c ∣s W1) =  P (c t ∣st - 1W1) ,
+
+(10)
+
+t =1
+
+and each term is determined by (1).
+
+The remaining P (s ∣W1) term cannot be simply factorised over the states despite being a Markov chain, as
+observing Ω1 introduces possible dependencies. We can however expand using the product rule and simplify by
+making use of the independencies in (3):
+N
+
+P (s ∣W1) =  P (st ∣st - 1 W1) P (s 0∣W1) ,
+
+(11)
+
+t =1
+
+where we have chosen to expand in temporal order.
+Finally, the inference becomes
+1
+
+P (a1 b1∣c I1) =
+
+
+ò ò
+
+N
+
+dl dm å  P (c t st ∣st - 1 W1) ´ P (s 0∣W1)
+
+s t =1
+
+(12)
+
+where we have used (4) to write the joint distribution between ct and st.
+
+The problem with (12) is that the sum over s contains 2N terms each of which has N products. This will
+rapidly become intractable as the size of the data grows. Fortunately it is possible to rewrite (12) as a single term
+with N 2×2 matrix products. Consider the following matrix:
+⎡ P (c t st = 0∣st - 1 = 0 W1) P (c t st = 0∣st - 1 = 1 W1)⎤
+Rt = ⎢
+⎥,
+⎣ P (c t st = 1∣st - 1 = 0 W1) P (c t st = 1∣st - 1 = 1 W1)⎦
+
+(13)
+
+⎡ P (s 0 = 0∣W1)⎤
+
+D0 = ⎢
+⎥
+⎣ P (s 0 = 1∣W1)⎦
+
+(14)
+
+and vector
+
+then
+N
+
+P
+(
+c
+s
+∣
+s
+W
+)
+P
+(
+s
+∣
+W
+)
+=
+[
+1
+1
+]
+å  t t t-1 1 0 1
+ Rt D0,
+N
+
+
+s t =1
+
+(15)
+
+t =1
+
+where the product on the right hand side is read as decreasing in t to the right. The equivalence in (15) is readily
+veriﬁed by expanding a few terms out. The matrix multiplication will sum over the columns of Rt which is a
+summation over the states st−1. Each successive multiplication sums over another state and the ﬁnal
+multiplication by the row vector [1 1] will sum over sN.
+With this equivalence, the inference reads
+1
+
+P (a1 b1∣c I1) =
+
+
+N
+
+dl dm [1 1]  Rt D0,
+
+ò ò
+
+(16)
+
+t =1
+
+which is easily computable. Note that care must be taken to avoid underﬂow or overﬂow in calculating the
+matrix products.
+As a demonstration of the algorithm, ﬁgure 4(a) shows the credible regions of a1 and b1 for the data given in
+ﬁgure 1(b). The marginal distributions of all unknown parameters (a1, b1, μ and λ) are given in ﬁgure 4(b). It
+should be noted that the inference contains no approximations or arbitrary choices, and makes use of all the
+data. The key point of contention with observed data is whether the model is realistic to the system. If it is, then
+the inference faithfully converges on the underlying values regardless of what they are. For example in ﬁgure 5 we
+generated count data assuming high probabilities of switching (a1 = 0.8 and b1 = 0.9) so the data looks very
+unlike the usual blinking trace. The inference quickly converges on the correct probabilities despite this.
+2.3. Comparison with threshold analysis
+In this subsection we compare our Bayesian inference technique with the conventional threshold analysis
+technique for extracting the on and off rates from a blinking time trace. To make threshold analysis possible, data
+is taken from the simulated count trace from ﬁgure 1(a) which has well separated on and off states. Given a
+5
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+Figure 4. (a) Inference of the switching probabilities on simulated data given in ﬁgure 1(b). The contours contain the 50%, 90%, and
+99% credible regions. The true value is shown as red dot. (b) Probability distributions of a1 and b1 and marginal distributions of μ and
+λ. The true values of the unknown parameters are given in red bar.
+
+Figure 5. (a) Time trace with high switching probability of a1 = 0.8 and b1 = 0.9, simulated using the DTMC single-step model.
+(b) The posterior distribution for switching probabilities inferred using single interval model.
+
+threshold Ithreshold, the emitter is taken to be in the on state if the intensity In in the nth time bin satisﬁes
+In>Ithreshold and it is off if In  Ithreshold . A variety of methods have been employed for selecting the threshold,
+
+6
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+Figure 6. Comparison of Bayesian inference with threshold analysis. (a) Thresholds try to identify the states by a separation point
+between the two peaks in the histogram of counts. This is a close-up of the histogram in ﬁgure 1(a), with four thresholds marked
+according to various rules found in the literature (see footnote). (b) A threshold allows the on and off periods to be identiﬁed, and the
+distribution of durations is obtained from histograms. Here the histogram of on durations is shown with various (arbitrary) choices of
+binning. An exponentially decaying ﬁt to this histogram (illustrated for 10 bins) yields the switching rate. (c) Switching probabilities
+for the data in ﬁgure 1(a) were determined with thresholds ranging from 15 to 24 counts, and for the binning options illustrated in (b).
+Results for the four thresholds marked in (a) are circled in corresponding colours for 10 bins. The grey mark with error bars represents
+the mean and standard deviation of the range of points obtained for 17  Ithreshold  21, which are arbitrarily considered ‘reasonable’
+options. None of the arbitrary choices of threshold or binning yield a result lying within the 99% credible region of the Bayesian
+inference.
+
+and four are considered here4. These are shown in ﬁgure 6(a) over a close-up of the centre of the counts
+histogram from ﬁgure 1(a).
+Once the on and off periods are identiﬁed they can be binned by duration into histograms [1, 2, 20, 21].
+Figure 6(b) shows the on duration histogram for a given threshold, highlighting the way that arbitrary choice of
+binwidth impacts the perceived distribution. A separate histogram can be produced for the off periods, and
+exponentially decaying ﬁts to these histograms yield the characteristic on and off lifetimes from which the
+switching probabilities or rates are obtained [1, 2]. This analysis was performed with a range of thresholds and of
+duration binwidths to explore how the outcomes depend on these choices, and the results are displayed in
+ﬁgure 6(c). Results for the four marked thresholds are marked at the 10-duration-bins case because this was the
+default option in the package used for data processing (numpy).
+Threshold analysis does not provide any mechanism for estimating the uncertainty in the extracted
+swithching rates. This is because the fundamental measurement uncertainty arises from the difﬁculty in
+distinguishing short switching events noise spikes in the count time trace. It is possible to acknowledge a kind of
+‘processing uncertainty’ by considering that various thresholds and bins are plausible, and accounting for the
+range of corresponding results. The grey error-bar mark in ﬁgure 6(c) indicates the mean and standard deviation
+of all results obtained for 17  Ithreshold  21 and histograms with 8–12 bins. The credible regions obtained
+from our Bayesian inference on the same blinking time trace is also shown in the ﬁgure. It is obvious from the
+picture that our Bayesian inference has converged close to the true value (the red dot in the ﬁgure 6(c)), and
+provided a meaningful assessment of the uncertainty. None of the values obtained from threshold analysis are
+very close, and the Bayesian inference works better even for this time trace with very discernible blinking.
+4
+
+The four methods employed here are: (i) the minimum value between two peaks of the intensity histogram [21], which has been
+numerically determined here from a double-Poissonian ﬁt. This threshold is illustrated in ﬁgure 1(a), and marked with the same magenta
+colour in ﬁgure 6(a). (ii) Two standard deviations above the mean intensity of background counts [19–21, 29, 30], indicated by a golden line
+in ﬁgure 6(a). (iii) The highest possible background count rate over total duration of the experiment [21]. Here we have taken this to be the
+position where the off state Poissonian normalised to the number of measurement time steps dips below 1, and it is indicated by a cyan line in
+ﬁgure 6(a). (iv) The mid point between two peaks in the counts histogram [21, 29], marked with an orange line in ﬁgure 6(a).
+
+7
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+3. CTMC model
+In the previous section the emitter could only switch states at the boundaries of the detection interval. Though
+this is a hidden Markov model, the inference was simple as the state is only obfuscated by the Poissonian
+distribution of counts. In this section we go to the other extreme and assume the emitter can change state at any
+point in time, possibly multiple times in a single detection interval. The previous single-interval model will be a
+good approximation to this continuous time model in the limit that the switching rates are very small. In that
+limit the occasional switch during a detector interval introduces negligible error and most intervals are either
+entirely on or entirely off.
+3.1. Model description
+The emitter can switch at any time, so that the state is a function of time, i.e. s(t). This situation is modelled by a
+CTMC as depicted on the right of ﬁgure 2. At any given time, the state can still only have one of two values but
+can switch arbitrarily often in any time interval. The detection events are as before with the detectors reporting
+the accumulated count from a time window of constant duration T. For clarity we shall take time to be expressed
+in units of the detector interval so that T=1.
+In a CTMC the time spent in any state is exponentially distributed, and since there are only two states, the
+next state is deterministic. The characteristic lifetime of the off -intervals will be inversely proportional to the rate
+of switching out of the off state which will be the switch-on rate ra . Similarly the on-intervals are inversely
+proportional to the switch-off rate rb . In this model, these two parameters ra and rb , are the parameters we want
+to infer, replacing a1 and b1.
+The CTMC can be solved by the forward Kolmogorov equations. Representing the off state by the vector
+[1 0]T and the on state by [0 1]T the transitions dynamics are encoded by the equation
+dP ( t )
+= QP (t ) ,
+dt
+
+(17)
+
+⎡- ra ra ⎤
+Q = ⎢ r - r ⎥.
+⎣ b
+b⎦
+
+(18)
+
+where
+
+This has the formal solution P (t ) = exp (Qt ). From this solution we can determine the transition probabilities
+Pab(t) from state a to state b in time t:
+1
+P00 (t ) =
+(rb + ra e-(ra+ rb ) t ) ,
+(19)
+ra + rb
+ra
+P01 (t ) =
+(1 - e-(ra+ rb ) t ) ,
+(20)
+ra + rb
+rb
+P10 (t ) =
+(1 - e-(ra+ rb ) t ) ,
+(21)
+ra + rb
+1
+P11 (t ) =
+(ra + rb e-(ra+ rb ) t ).
+(22)
+ra + rb
+3.2. Bayesian inference
+
+The basic inference is as before, we have a list of N detector counts c and we want to infer ra and rb while
+optionally marginalising over the rates μ and λ leading an equivalent expression to equation (8) but for ra and rb :
+1
+
+
+P (ra rb∣c Ic ) =
+dl dmP (c ∣Wc ) ,
+(23)
+
+
+ò ò
+
+where Wc = ra rb l m Ic similar to previously, and the subscript denotes the continuous-time model, and  is
+suitably redeﬁned.
+To get traction on the problem, we add in the states at the boundaries of the detection interval sj=s(tj),
+where the nth detection interval goes from tn−1 to tn and tn=n since T=1.
+
+ 
+
+P (c ∣Wc ) = å P (c ∣s Wc ) P (s ∣Wc ).
+(24)
+
+s
+
+Note that in this situation the states sj at the boundaries are not enough to specify the state during the detection
+interval, unlike in the previous case where the state was constant during the whole interval. The indepencencies
+are now
+c n ^c m∣sn - 1 sn Wc m ¹ n
+
+8
+
+(25)
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+sn ^sm∣sn - 1 Wc m < n - 1
+
+(26)
+
+N
+
+P (c ∣Wc ) = å  P (c n∣sn - 1 sn Wc ) P (sn∣sn - 1 Wc ) P (s 0∣Wc )
+
+(27)
+
+and we can simplify
+
+s n= 1
+N
+
+=å  P (c n sn∣sn - 1 Wc ) P (s 0∣Wc ).
+
+(28)
+
+
+s n= 1
+
+This expression can again be converted into an efﬁcient matrix equation identical in form to earlier:
+N
+
+N
+
+n= 1
+
+n= 1
+
+
+
+å
+ P (ct sn∣sn- 1 Wc ) P (s 0∣Wc ) = [1 1]  Rn D0
+
+
+(29)
+
+⎡ P (c n sn = 0∣sn - 1 = 0 Wc ) P (c n sn = 0∣sn - 1 = 1 Wc )⎤
+Rn = ⎢
+⎥,
+⎣ P (c n sn = 1∣sn - 1 = 0 Wc ) P (c n sn = 1∣sn - 1 = 1 Wc )⎦
+
+(30)
+
+⎡ P (s 0 = 0∣Wc )⎤
+
+D0 = ⎢
+⎥.
+⎣ P (s 0 = 1∣Wc )⎦
+
+(31)
+
+s
+
+with
+
+and
+
+All that remains is to calculate P (cn sn∣sn - 1 Wc ). If we knew f, the fraction of the interval for which the emitter
+was in the on state, then the counts would be given by a weighted Poissonian. That is,
+P (c n sn∣sn - 1 Wc ) =
+
+1
+
+ò0 dfP (cn∣sn sn-1 f Wc ) P (sn f ∣sn-1 Wc ),
+
+(32)
+
+and
+P (c n∣sn sn - 1 f Wc ) =  (c n∣m + fl).
+
+(33)
+
+Now, we need to ﬁnd an expression for P (sn f ∣sn - 1 Wc ). For brevity, we’ll introduce the notation
+R ab ( f ) ≡ P (sn = b f ∣sn - 1 = a Wc ). This probability accounts for all the possible histories where the
+detection interval spent a fraction f in state on and ended in the state sn given it started in state sn−1. The different
+histories can be decomposed by differing numbers of switch events. Consider the case where the state starts and
+ends in the off state, i.e. R00( f ). Clearly an odd number of switch events will not be consistent with the boundary
+states and hence will have probability zero. With zero switch events the entire interval is off and the probability is
+just the exponential distribution d ( f ) e-ra , where δ is the Dirac delta function. Two switch events partitions the
+interval into three regions l1, l2 , and l3 with states off–on–off and probability
+1-f
+
+ò0 dl1e-r l ra e-r l rb e-r l = ra rb e-r (1-f )-r f (1 - f ),
+a1
+
+b 2
+
+a 3
+
+a
+
+b
+
+(34)
+
+where we have used l2 = f and l1 + l3 = 1 - f . In general the interval will be partitioned into a set of on states
+of total duration f and a set of off states of duration 1−f so that the exponentials combine and will not depend
+on the durations l j . For example with six switches there are seven regions with three switch-on and three switchoff events, and the probability is
+ra3 rb3 e-ra (1 - f ) - rb f ´
+´
+
+ò
+
+1-f
+
+ò
+
+ò
+
+f
+
+ò
+
+f - l2
+
+dl2
+dl 4
+0
+0
+
+1 - f - l1
+
+ò
+
+A
+1 - f - l1- l3
+
+dl1
+dl3
+dl5 1.
+0
+0
+0
+
+
+
+
+(35)
+
+B
+
+The integrals in A calculate the volume of a two-dimensional simplex of side f, and those in B the volume of a
+three dimensional simplex of side 1−f. Since the volume of an n-dimensional simplex of side f is f n/n!,
+equation (35) evaluates to
+f 2 (1 - f )3ra3 rb3 e-ra (1 - f ) - rb f
+2!3!
+
+.
+
+(36)
+
+Alternatively, these integrals can be evaluated using a Laplace transform as shown by Jaynes [31].
+Summing over all switch events gives
+¥
+
+f k - 1 (1 - f ) k k k
+ra rb
+k = 0 (k - 1)!k!
+
+R 00 ( f ) = d ( f ) e-ra + e-ra (1 - f ) - rb f å
+
+9
+
+(37)
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+Figure 7. (a) Inference of the switching rates on simulated data given in ﬁgure 1(c). The contours contain the 50%, 90%, and 99%
+credible regions. The true value is shown as red dot. (b) Probability distributions of ra and rb and marginal distributions of μ and λ.
+The true values of the unknown parameters are given in red bar.
+
+= d ( f ) e-ra - e-ra (1 - f ) - rb f
+
+( f - 1) ra rb
+´ J1 (2 ( f - 1) fra rb ) ,
+f
+
+(38)
+
+where J1(x) is the Bessel function of the ﬁrst kind. A similar argument yields the other possible fraction
+probabilities:
+R 01 ( f ) = ra J0 (2 ( f - 1) fra rb ) e-ra (1 - f ) - rb f
+
+(39)
+
+R10 ( f ) = rb J0 (2 ( f - 1) fra rb ) e-ra (1 - f ) - rb f
+
+(40)
+
+R11 ( f ) = d (1 - f ) e-rb + e-ra (1 - f ) - rb f
+
+fra rb
+f-1
+
+´ J1 (2 ( f - 1) fra rb ).
+
+(41)
+
+So in summary we have
+P (c n sn∣sn - 1 Wc ) =
+
+1
+
+ò0 df (cn∣m + fl) Rs s ( f )
+n-1 n
+
+(42)
+
+which is an integral that needs to be done numerically.
+The extreme case data in ﬁgure 1(c) was used as an example of the inference and is presented in ﬁgure 7. The
+initial range of parameters was assumed to be equally likely anywhere in 0  ra, rb  8, and 0  l , m  18,
+and a four-dimensional grid where each range was divided into 70 values was used in evaluating the posterior
+probability in (29) for each data point to allow for temporary normalization and control of underﬂow.
+3.3. Relation between single interval model and continuous-time model
+The single interval model and the continuous time model make different assumptions about the underlying
+switching mechanism, nevertheless if the switching rates ra and rb are low, we would expect the single interval
+model to yield very similar results. This is because the detector intervals that contain internal switching events
+will be relatively rare and will not contribute signiﬁcantly to the inference. Additionally, the discrete time model
+assumes that the emitter remains in a constant state over each detector interval, which is a reasonable
+approximation for small switching rates. It might be supposed that, if the rates are small, the single interval
+model could be used as a more computationally efﬁcient approximation to the full inference. We now explore
+the validity of this approximation.
+The two models can be connected by the time spent in a given state. Consider a time interval Δt=T/d
+which is a fraction of the measurement time. In the continuous-time model the probability of a state having a
+lifetime Δt is exponentially distributed, e.g P0 (Dt ) ≡ P (s (t ) = 0: 0  t  Dt ) = exp (-ra Dt ). So for a model
+where the state is ﬁxed for duration Δt, we can relate the probability of switching state to the probability of the
+state not having lifetime Δt, e.g. αd=1−P0(Δt). Consequently,
+a d = 1 - e-ra T d
+
+10
+
+(43)
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+Figure 8. Accuracy of the single-step inference to data simulated using a continuous model with various switching rates. The inference
+error taken as the Euclidean distance between the true ra, rb and the mode of the posterior distribution. For small switching
+probabilities the inference gives good agreement with the known parameters, but for higher switching probabilities the inference is
+less accurate. The cyan line indicates an approximate threshold for applicability of the single-step model of ra rb < 0.1, which
+corresponds approximately to a relative error 25% .
+
+bd = 1 - e-rb T d .
+
+(44)
+
+Assuming small switching rates in the continuous model we can expand to ﬁrst order in the switching rates.
+For Bessel function of the ﬁrst kind,
+Jm (z ) »
+
+⎛ z ⎞m
+1
+⎜ ⎟
+G (m + 1) ⎝ 2 ⎠
+
+z  1,
+
+(45)
+
+where G(x ) is the Gamma function. Hence at a low rate of switching, we can expand ﬁrst order in ra , rb to obtain
+R 00 ( f ) » d ( f )(1 - ra ), R11 ( f ) » d (1 - f )(1 - rb ), R 01 ( f ) » ra and R10 ( f ) » rb . Furthermore, from (43)
+and (44) with d=1, a1 » ra and b1 » rb . With this approximations (42) yields,
+P (c n 0∣0 Wc ) » (1 - a1)  (c n∣m)
+
+(46)
+
+P (c n 1∣1 Wc ) » (1 - b1)  (c n∣m + l)
+
+(47)
+
+P (c n 1∣0 Wc ) » a1 c˜n
+
+(48)
+
+P (c n 0∣1 Wc ) » b1 c˜n,
+
+(49)
+
+where,
+c˜n =
+
+1
+
+ò0 df (cn∣m + fl),
+
+(50)
+
+is the probability of obtaining cn counts averaged over all durations spent on in the interval. The ﬁrst two
+probabilities are identical to those obtained in the single interval model. The last two differ, as in the single
+interval model we made the arbitrary decision to take the switch event as happening at the ends of the intervals,
+whereas in the correspondence between models we allow the switch to occur anywhere. However, detector
+intervals that contain a switch event become rare when the rates are small. So the continuous time model
+becomes indistinguishable from the single step model in this limit as expected.
+The single interval model will lose accuracy as the rate of switching increases and this can be explored
+numerically. In ﬁgure 8 we summarise such an investigation by plotting the difference between the true
+switching rate (for data simulated from a continuous switching model) and the result of a single-interval model
+inference. The colour map represents the Euclidean distance from the true value to the maximum value of the
+posterior probability distribution. The black region corresponds to a small distance, and is therefore the most
+applicable region for the single-interval inference. As the (continuous) rates increase the single-interval model
+starts failing. An approximate threshold for applicability of the single-step model is when ra rb < 0.1, which
+corresponds roughly to a relative error 25%. The continuous time model performs well throughout this entire
+region (and beyond) as shown in ﬁgure 7, even though the traditional threshold technique cannot even be
+applied to the data, as illustrated in ﬁgure 1(c).
+A grid of 150×150 simulations were run to produce the colour map in ﬁgure 8, and the posterior
+distributions for switching rates are shown for four illustrative cases. Note that the scales are different for each
+contour plot. The lower left plot shows a good convergence of the inference to the true value, where the rates are
+11
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+small. As both rates increase up the diagonal of the plane, the plots on the upper left and upper right show the
+increasing deviation of the inference from the true value. In the top right the switching rates are so high that there
+is an average of two switching events per detector interval. The posterior distribution is tightly converged since
+there are a large number of switching events, but it is signiﬁcantly diverged from the true value. The lower right
+plot considers a situation where the on rate is very high and off rate is low. The convergence is not good for this
+case, since the asymmetry of switching rates results in very few switching off events—the data remains in the on
+state for most of the time. The single-interval inference provides a good estimate for the slow rate, but
+dramatically underestimates the fast rate which is beyond what is assumed in the model.
+
+4. DTMC multi-step model
+In the CTMC model of the previous section the emitter may switch state at any time, and we derived a ﬁnal
+integral over the distribution of counts that has to be evaluated numerically. In general this may be difﬁcult or
+inefﬁcient, and in such cases the continuous model may be approximated by a discrete switching model that
+provides multiple possible switching points within each detector interval.
+4.1. Recursion relation
+Consider the nth detector interval, having boundary states sn−1 and sn; and observed counts cn. We have already
+noted that this distribution is independent of the photon counts in adjacent detector intervals, and so the
+inference developed within this interval will be equally valid for all intervals in the measurement. Furthermore,
+this holds within a detector interval also; the count distribution in a given subinterval is independent of adjacent
+subintervals given knowledge of the states at the boundaries of the sub-intervals.
+We introduce the notation z x to denote the state of the emitter at fraction x within the detector interval
+(0  x  1), where z0 = sn - 1 and z1 = sn . Also the counts in a fractional interval from time u to time v will be
+denoted cu,v. In particular, we introduce the mid-point state z1 2 and then marginalize over it in order to identify
+a useful recurrence relationship for the photon count distribution. This intermediate state breaks the original
+interval into two subintervals, and clearly there are only cn+1 possible assignments for the subintervals
+(c 0, 12 , c 12 ,1) to give the total counts: {(cn, 0), (cn - 1, 1),¼,(0, cn)}.
+In the following discussion frequent distinction will be made between the four sub-cases of the photon count
+distribution corresponding with the possible start and ﬁnish state possibilities zu and zu + t of an interval of
+length t. To make this clearer we introduce the following notation:
+fi, j (t , k) º P (c u, u+ t = k , zu+ t = j∣zu = i , Wt ) ,
+
+(51)
+
+where Ωt=αtβtλμIt assuming that switching probabilities αt and βt can be deﬁned over the time t. Using the
+introduced intermediate state z1 2 gives rise to the expression
+k
+
+k
+
+cd = 0
+
+cd = 0
+
+fi, j (t , k) = å fi,0 (t 2, c d ) f0, j (t 2, k - c d ) + å fi,1 (t 2, c d ) f1, j (t 2, k - c d )
+
+(52)
+
+which is the sum of the two discrete convolutions of count probability distributions corresponding to the two
+possible mid-interval states. This offers a fundamental recursion relation between the probability distributions
+of counts over successive halvings of the interval.
+For a given interval t, fi, j(t,·) is function of counts (a slice through a joint probability distribution). Since in
+any given experiment there will be a maximum count in an interval, the function fi, j(t,·) can be recorded as a
+single dimensional array. In light of this, equation (52) shows that values of the functions fi, j(t,·) can be
+calculated numerically from knowledge of the function values for half the interval, fi, j(t/2,·).
+This recursion will apply in any system where the count distribution over a single time interval is
+independent of adjacent intervals given knowledge of the boundary states; in cases where a closed form for the
+count distribution is intractable this can be exploited to estimate the fully continuous distribution at low
+computing time cost. As a demonstration of this process we now show that repeated application of equation (52)
+facilitates fast and accurate estimates of the functions fi, j arising from the CTMC model.
+4.2. Model description
+The CTMC photon counts distribution has been shown to limit to Poissonian probabilities in the case when the
+switching probabilities are small, and the state of the emitter is constant for most measurement windows. Even
+when switching probabilities are high, however, the emitter state will be (nearly always) constant over time
+windows sufﬁciently small. We construct a model in which the detector interval is subdivided into multiple
+subintervals, and the emitter is allowed to switch state only at the boundaries of these subintervals (similar to the
+discrete model in section 2). To leverage the intrinsic ‘halving’ suggested by the recursion relation discussed
+12
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+Figure 9. Increasing the number of subintervals considered in the inference reduces the error of the obtained switching rates.
+Simulated data with rα=rβ were taken from the set generated for ﬁgure 8 up to rα=rβ=2 and additional datasets were generated
+for even faster rates. The multi-step inference was performed for various numbers of subintervals d and the euclidean error
+determined by comparison of the known rates with the mode of the posterior distributions. The inset shows the 50%, 90%, and 99%
+credible contours for the posterior distributions corresponding to d=2, 4, 8 for rα=rβ=1.9966 (the contours for d = 1 for this
+dataset are shown in ﬁgure 8). The shaded region represents a relative error of 25%.
+
+above, suppose then that a number of subintervals d=2m is chosen such that m is integer. If 1/d is a short
+enough duration that the functions fi, j(1/d,·) are well-approximated by weighted Poissonians, then it is
+expected that this model will give close agreement with the CTMC inference. For example, the region of
+applicability identiﬁed in ﬁgure 8 suggests that m should be chosen at least large enough so that rα
+rβ<0.1×22m for every rα and rβ under consideration. Since this bound increases exponentially with m, large
+switching rates may be accommodated by modest increases in m.
+In this model the total photon count observed in a detector interval is the sum of all counts that arise in each
+subinterval within the detector interval. This kind of system which switches its state within the detector interval
+can also modelled by DTMC. The switching probabilities over a subinterval are ad (probability of switching on)
+and bd (probability of switching off ) as shown in ﬁgure 2. Here we want to infer the rates of switch-on (ra ) and
+switch-off (rb ) per detector interval. The switch-on and switch-off probabilities ad and bd can be written in
+terms of ra and rb as given in equations (43) and (44).
+Using (as before) μ and λ to denote expected background and signal photon counts over a unit interval, and
+ad and bd to denote switching probabilities over a period of 1/d, we have
+⎧ (1 - a d )  (k∣m d )
+i = 0, j = 0
+⎪
+⎪
+i = 0, j = 1
+a d  (k∣m d )
+f i , j (1 d , k ) » ⎨
+i = 1, j = 0
+⎪ bd  (k∣(m + l) d )
+⎪
+⎩(1 - bd )  (k∣(m + l) d ) i = 1, j = 1.
+
+The four cases of fi, j(1/d,·) may be stored as arrays indexed by the counts κ. Equation (52) may then be applied
+m times to numerically approximate the values of fi, j(1,·).
+4.3. Bayesian inference
+As in the continuous time case, we are inferring the rates of switch-on ra and switch-off rb given the data counts
+
+c . The inference proceeds almost identically, adding the unknown ﬂuorescence λ and background μ rates to the
+problem, using the independencies and ﬁnally converting into a matrix form equivalent to the one given in (15),
+N
+
+
+P (c ∣ Wd ) = [1 1]  Rn D0
+n= 1
+
+(53)
+
+
+with Rn and D0 equivalent to equations (30) and (31) respectively. Now we can use the recursion algorithm
+outlined to calculate P (cn sn ∣ sn - 1 Wd ).
+To demonstrate this inference and explore the signiﬁcance of the number of subintervals d, we tackle set of
+data from the diagonal (ra = rb ) of ﬁgure 8. Three additional datasets beyond ra = rb = 2 were generated, and
+inferences were calculated for d=1, 2, 4, 8. Euclidean distance was again used to measure the error in the
+inference, and ﬁgure 9 shows the error increasing as ra, rb increase. Taking higher numbers d of subintervals into
+consideration reduces the error, and d=4 is almost sufﬁcient to keep the entire ra, rb  2 region from ﬁgure 8
+13
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+Figure 10. (a) Inference of the switching rates on simulated data given in ﬁgure 1(c) DTMC multi-step model with d=16 subintervals
+was used for inference. The contours contain the 50%, 90%, and 99% credible regions. The true value is shown as red dot.
+(b) Probability distributions of ra and rb and marginal distributions of μ and λ. The true values of the unknown parameters are given
+in red bar.
+
+enclosed inside the 25% relative error threshold. The inset illustrates the posterior distributions that correspond
+to the third case in ﬁgure 8, except the plot scale is different. As d increases the location of the inference improves,
+but the width of the distribution converges less tightly. This reﬂects the fact that for increasing d there are higher
+numbers of intermediate states z j considered by the model but the amount of information provided by the
+dataset is not increasing. In ﬁgure 9 each d eventually leads to the error increasing with about the same slope,
+which is 2 ra . For a given d the inference seems to remain effectively bounded, and for large ra, rb the inference
+differs from the true values by approximately the diagonal distance on the plane.
+This investigation suggests that d=8 is roughly on the 25% relative error threshold for rates approaching 3.
+To tackle the count data from ﬁgure 1(c) as before, we therefore choose d=16 and the results are presented in
+ﬁgure 10. The inference is quite accurate, but not as good as the CTMC model. Increasing d will improve the
+accuracy of this inference at the cost of increased time to recursively compute the discrete convolutions.
+
+5. Inferring the state
+An obvious extension of the work presented above is to determine the underlying state behind a data point given
+all the data observed. In the case where the switching is happening many times per detector interval, this task
+becomes ﬁnding what fraction of the interval was spend in a given state. Here, we illustrate how to solve this task
+for the case of the single interval model. In this model the system has a ﬁxed state throughout the detector
+interval and the task is to determine the state of interval k making use of all observed data, but without
+
+knowledge of λ, μ, α1, or β1. Speciﬁcally, the task is to determine P (sk = a∣c I1), where a is either 0 or 1. For a
+continuous switching model the posterior distribution will be of the proportion of time spent in a given state
+underlying each data point.
+In order to do the inference we add λ, μ, a1, β1 and the rest of the states and marginalise over them. An
+application of Baye’s rule then yields,
+1
+
+P (sk = a∣c I1) =
+
+
+
+
+P (c ∣s1 ¼ sk - 1 (sk = a) sk + 1 ¼ sn W1)
+ò da1db1dldm så
+¹s
+k
+
+´ P (s1 ¼ sk - 1 (sk = a) sk + 1 ¼ sn∣W1) ,
+
+(54)
+
+where Ω1=α1β1λμI1 as before and the prior probability distributions where taken as constant with the
+normalisation  to be determined at the end. The summation is over all states sj where j ¹ k denoted in short
+
+as s ¹ sk . Expanding the last term in temporal order and making use of the independencies in (3) and (4)
+leads to,
+14
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+Figure 11. (a) Simulated count data from a DTMC single-step model. (b) State at each time interval determined by the threshold
+shown in (a). (c) The true state from the simulation. (d) Probability the state of an interval was ‘1’ inferred from the entire data
+sequence. (e) The posterior probability of α1 and β1 given the same data. Note that as more data is observed the credible regions
+converge of the true values of α1 and β1 and the inference of the state becomes much more accurate.
+
+1
+
+P (sk = a∣c I1) =
+
+
+N
+
+ò
+
+da1 db1 dldm å  P (c t st ∣st - 1 W1) P (s 0∣W1).
+
+s ¹ sk t = 1
+
+(55)
+
+
+The probability can be efﬁciently computed using the matrices Rt (13) and D0 (14), and either Rk(0) or Rk(1) for
+a=0 or a=1 respectively, where
+⎡ 0
+⎡R
+R ⎤
+0 ⎤
+Rk(0) = ⎢ k,00 k,01⎥ Rk(1) = ⎢
+⎣ Rk,10 Rk,11⎥⎦
+⎣ 0
+0 ⎦
+
+(56)
+
+and Rk, ij = P (ck sk = i∣sk - 1 = j W1) giving the ﬁnal result
+1
+
+P (sk = a∣c I1) =
+
+
+
+
+òda1db1dldm [1 1] Rn  Rk+1Rk(a) Rk-1  R1D0.
+
+(57)
+
+To demonstrate the algorithm in action, data was generated and analysed assuming known μ and λ, by both
+a threshold and the full inference and is shown in ﬁgure 11. Determining the state by a threshold is shown in
+ﬁgure 11(b) with the result being either state ‘0’ or state ‘1’. Using the inference based on the whole data yields the
+probability distribution over the state. Figure 11(d) plots the probability that the state is ‘1’, P(sk=1), for each
+data point k. Note how small ﬂuctuations past the threshold do not signiﬁcantly affect the probability of the state
+and are consequently ﬁltered out. Additionally, the probability of state can convey the conﬁdence in the state
+assignment—a value of 0.5 means it is equally likely to be either state, this information is lost when a threshold is
+applied.
+
+6. Conclusions
+We have derived efﬁcient methods for obtaining the posterior distribution of blinking and emission rates given
+observation of accumulated detector counts for several blinking models. The methods do not require
+approximations to make the calculation tractable, and make use of all the observed data; the main ﬁtting task is
+the selection and assumptions that go into the models. Moreover, the advantage of obtaining the posterior
+distribution is that rigorous error bounds can be placed on the inferred parameters for example by use of
+credible regions. We have also demonstrated how to use the data to determine the underlying state, and unlike a
+threshold technique the result is automatically carries error bounds in the form of a probability distribution. It
+would be an interesting extension to compare this application with other proposals for directly extracting the
+state e.g. [18, 23, 32]. Though it should be noted that since the rates and the states are dependent on each other
+15
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+the analysis cannot decouple into ﬁrst determining the states, then from those determining the rates of
+transitions.
+In general we expect the methods presented to apply to a wide variety of hidden Markov models, far beyond
+the blinking of quantum emitters. For systems where there is a well-deﬁned state time, the single and multi-step
+models will be a close ﬁt depending on how the data is accumulated. These models are then capable of
+determining the model parameters for high or low switching probabilities. In systems that can switch at any time
+the CTMC model is a better ﬁt, and though it requires the numerical evaluation of an integral as part of the
+routine we have found that this is not a hindrance. In these type of systems the stepped models can be thought of
+as approximations that are more efﬁcient for evaluation when the switching rates are low. Similarly we expect the
+methods to readily generalize to more complex Markov models with more states and other methods of indirect
+observation.
+
+Acknowledgments
+We would like to thank Yuval Sanders for pointing out the integral solution by Jaynes. Jemy Geordy
+acknowledges that the work was done while holding the International Macquarie University Research
+Excellence Scholarship (‘iMQRES MRES’) for Master of Research (Allocation number 2018116). Lachlan J
+Rogers is the recipient of an Australian Research Council Discovery Early Career Award (project number
+DE170101371) funded by the Australian Government. This research was funded in part by the Australian
+Research Council Centre of Excellence for Engineered Quantum Systems (Project number CE170100009).
+
+References
+[1] Efros Al L and Rosen M 1997 Random telegraph signal in the photoluminescence intensity of a single quantum dot Phys. Rev. Lett. 78
+1110–3
+[2] Jantzen U et al 2016 Nanodiamonds carrying silicon-vacancy quantum emitters with almost lifetime-limited linewidths New J. Phys. 18
+073036
+[3] Neu E, Agio M and Becher C 2012 Photophysics of single silicon vacancy centers in diamond: implications for single photon emission
+Opt. Express 20 19956–71
+[4] Bradac C, Gaebel T, Naidoo N, Sellars M J, Twamley J, Brown L J, Barnard A S, Plakhotnik T, Zvyagin A V and Rabeau J R 2010
+Observation and control of blinking nitrogen-vacancy centres in discrete nanodiamonds Nat. Nanotechnol. 5 345
+[5] Castelletto S and Edmonds A 2012 680–890nm spectral range of nickel-nitrogen and nickel-silicon complex single centres in diamond
+Proc. SPIE 8518 85180R
+[6] Wang C 2007 A solid-state single photon source based on color centers in diamond PhD Thesis LMU
+[7] Nirmal M, Dabbousi B O, Bawendi M G, Macklin J J, Trautman J K, Harris T D and Brus L E 1996 Fluorescence intermittency in single
+cadmium selenide nanocrystals Nature 383 802
+[8] Frantsuzov P, Kuno M, Janko B and Marcus R A 2008 Universal emission intermittency in quantum dots, nanorods and nanowires
+Nat. Phys. 4 519
+[9] Efros A L and Nesbitt D J 2016 Origin and control of blinking in quantum dots Nat. Nanotechnol. 11 661
+[10] Galland C, Ghosh Y, Steinbrück A, Sykora M, Hollingsworth J A, Klimov V I and Htoon H 2011 Two types of luminescence blinking
+revealed by spectroelectrochemistry of single quantum dots Nature 479 203
+[11] Galland C, Ghosh Y, Steinbrück A, Hollingsworth J A, Htoon H and Klimov V I 2012 Lifetime blinking in nonblinking nanocrystal
+quantum dots Nat. Commun. 3 908
+[12] Frantsuzov P A, Volkán-Kacsó S and Jankó B 2013 Universality of the ﬂuorescence intermittency in nanoscale systems: experiment and
+theory Nano Lett. 13 402–8
+[13] Ruth A, Hayashi M, Zapol P, Si J, McDonald M P, Morozov Y V, Kuno M and Jankó B 2017 Fluorescence intermittency originates from
+reclustering in two-dimensional organic semiconductors Nat. Commun. 8 14521
+[14] Vanden Bout D A, Yip W-T, Hu D, Fu D-K, Swager T M and Barbara P F 1997 Discrete intensity jumps and intramolecular electronic
+energy transfer in the spectroscopy of single conjugated polymer molecules Science 277 1074–7
+[15] Dickson R M, Cubitt A B, Tsien R Y and Moerner W E 1997 On/off blinking and switching behaviour of single molecules of green
+ﬂuorescent protein Nature 388 355–8
+[16] Haase M, Hübner C G, Reuther E, Herrmann A, Müllen K and Basché T 2004 Exponential and power-law kinetics in single-molecule
+ﬂuorescence intermittency J. Phys. Chem. B 108 10445–50
+[17] Berhane A M, Bradac C and Aharonovich I 2017 Photoinduced blinking in a solid-state quantum system Phys. Rev. B 96 041203
+[18] Gammelmark S, Mølmer K, Alt W, Kampschulte T and Meschede D Hidden markov model of atomic quantum jump dynamics in an
+optically probed cavity Phys. Rev. A 89 043839
+[19] Kuno M, Fromm D P, Hamann H F, Gallagher A and Nesbitt D J 2000 Nonexponential ‘blinking’ kinetics of single cdse quantum dots:
+a universal power law behavior J. Chem. Phys. 112 3117–20
+[20] Kuno M, Fromm D P, Hamann H F, Gallagher A and Nesbitt D J 2001 ‘On’/‘off’ ﬂuorescence intermittency of single semiconductor
+quantum dots J. Chem. Phys. 115 1028–40
+[21] Crouch C H, Sauter O, Wu X, Purcell R, Querner C, Drndic M and Pelton M 2010 Facts and artifacts in the blinking statistics of
+semiconductor nanocrystals Nano Lett. 10 1692–8
+[22] Frantsuzov P A, Volkán-Kacsó S and Jankó B 2009 Model of ﬂuorescence intermittency of single colloidal semiconductor quantum
+dots using multiple recombination centers Phys. Rev. Lett. 103 207402
+[23] Watkins L P and Yang H 2005 Detection of intensity change points in time-resolved single-molecule measurements J. Phys. Chem. B
+109 617–28
+[24] Amecke N, Heber A and Cichos F 2014 Distortion of power law blinking with binning and thresholding J. Chem. Phys. 140 114306
+
+16
+
+New J. Phys. 21 (2019) 063001
+
+J Geordy et al
+
+[25] Cichos F, von Borczyskowski C and Orrit M 2007 Power-law intermittency of single emitters Curr. Opin. Colloid Interface Sci. 12
+272–84
+[26] Tang J and Marcus R A 2005 Diffusion-controlled electron transfer processes and power-law statistics of ﬂuorescence intermittency of
+nanoparticles Phys. Rev. Lett. 95 107401
+[27] Tang J and Marcus R A 2005 Mechanisms of ﬂuorescence blinking in semiconductor nanocrystal quantum dots J. Chem. Phys. 123
+054704
+[28] Darwiche A 2009 Modeling and Reasoning with Bayesian Networks (Cambridge: Cambridge University Press)
+[29] Cordones A A and Leone S R 2013 Mechanisms for charge trapping in single semiconductor nanocrystals probed by ﬂuorescence
+blinking Chem. Soc. Rev. 42 3209–21
+[30] Knappenberger K L, Wong D B, Romanyuk Y E and Leone S R 2007 Excitation wavelength dependence of ﬂuorescence intermittency in
+cdse/zns core/shell quantum dots Nano Lett. 7 3869–74
+[31] Jaynes E T 2003 Probability Theory: The Logic Of Science (Cambridge: Cambridge University Press) p 569 ch 18
+[32] Taylor J N, Makarov D E and Landes C F 2010 Denoising single-molecule fret trajectories with wavelets and Bayesian inference Biophys.
+J. 98 164–73
+
+17
+
+
