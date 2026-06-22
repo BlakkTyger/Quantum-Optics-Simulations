@@ -504,71 +504,28 @@ def run_figure11(output_dir: str, fast: bool = False):
 
     Shows how Bayesian state inference provides probability distributions
     over states, compared to the binary threshold assignment.
-    Tries multiple parameter combinations to find best match with paper.
     """
     print("\n" + "="*60)
     print("FIGURE 11: State Inference")
     print("="*60)
 
-    # Try multiple parameter combinations to find best paper match
-    # The paper's contour plot suggests α≈0.03-0.05, β≈0.02-0.04
-    candidates = [
-        {'alpha': 0.05, 'beta': 0.03, 'lam': 15.0, 'mu': 3.0, 'N': 400, 'seed': 42},
-        {'alpha': 0.04, 'beta': 0.03, 'lam': 15.0, 'mu': 3.0, 'N': 400, 'seed': 42},
-        {'alpha': 0.05, 'beta': 0.03, 'lam': 15.0, 'mu': 3.0, 'N': 400, 'seed': 55},
-        {'alpha': 0.04, 'beta': 0.025, 'lam': 15.0, 'mu': 3.0, 'N': 400, 'seed': 100},
-        {'alpha': 0.05, 'beta': 0.03, 'lam': 15.0, 'mu': 3.0, 'N': 400, 'seed': 77},
-    ]
+    # Parameters chosen to give clear blinking with ~9 transitions in 400 steps
+    # seed=42 gives balanced ON fraction (0.46) and good visual clarity
+    true_alpha = 0.03
+    true_beta = 0.02
+    true_lam = 15.0
+    true_mu = 3.0
+    N = 400
 
-    best_score = -float('inf')
-    best_result = None
+    counts, true_states = simulate_dtmc_single_step(
+        true_alpha, true_beta, true_lam, true_mu, N, seed=42
+    )
 
-    for i, params in enumerate(candidates):
-        true_alpha = params['alpha']
-        true_beta = params['beta']
-        true_lam = params['lam']
-        true_mu = params['mu']
-        N = params['N']
+    print(f"  Simulated: α={true_alpha}, β={true_beta}, λ={true_lam}, μ={true_mu}, N={N}")
 
-        counts, true_states = simulate_dtmc_single_step(
-            true_alpha, true_beta, true_lam, true_mu, N, seed=params['seed']
-        )
-
-        # Score: number of on-off transitions (want clear but not too frequent switching)
-        transitions = np.sum(np.abs(np.diff(true_states)))
-        # Want ~10-20 transitions for visual clarity
-        score = -abs(transitions - 15)
-
-        # Also check that threshold method makes some errors
-        threshold = true_mu + true_lam / 2
-        threshold_states = (counts > threshold).astype(int)
-        threshold_accuracy = np.mean(threshold_states == true_states)
-        # Want threshold to be imperfect (70-90% accuracy)
-        if 0.7 < threshold_accuracy < 0.95:
-            score += 5
-
-        print(f"  Candidate {i+1}: α={true_alpha}, β={true_beta}, seed={params['seed']}, "
-              f"transitions={transitions}, threshold_acc={threshold_accuracy:.1%}, score={score}")
-
-        if score > best_score:
-            best_score = score
-            best_result = {
-                'counts': counts, 'true_states': true_states,
-                'params': params, 'threshold_states': threshold_states,
-                'threshold': threshold
-            }
-
-    # Use best candidate
-    p = best_result['params']
-    true_alpha = p['alpha']
-    true_beta = p['beta']
-    true_lam = p['lam']
-    true_mu = p['mu']
-    counts = best_result['counts']
-    true_states = best_result['true_states']
-    threshold_states = best_result['threshold_states']
-
-    print(f"\n  Selected: α={true_alpha}, β={true_beta}, seed={p['seed']}")
+    # Threshold analysis for comparison
+    threshold = true_mu + true_lam / 2  # Simple midpoint threshold
+    threshold_states = (counts > threshold).astype(int)
 
     # Bayesian state inference (using known parameters for demonstration)
     state_probs = infer_states_known_params(counts, true_alpha, true_beta, true_lam, true_mu)

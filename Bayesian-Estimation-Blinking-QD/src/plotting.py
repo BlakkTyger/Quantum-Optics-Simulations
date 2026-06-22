@@ -209,9 +209,7 @@ def plot_figure1(data: dict, save_path: str = None):
         ax_zoom.text((on_start + on_end) / 2, y_arrow_on - 3, 'on',
                      ha='center', va='top', color='darkorange', fontsize=10, fontstyle='italic')
 
-        from mpl_toolkits.axes_grid1.inset_locator import mark_inset
-        ax_trace_a = ax_traces['fig1a'][0]
-        mark_inset(ax_trace_a, ax_zoom, loc1=3, loc2=4, fc="none", ec="black", lw=1.2)
+        # Removed mark_inset to avoid enormous bounding box from tight_layout
 
     if save_path:
         plt.savefig(save_path, dpi=150, bbox_inches='tight')
@@ -821,8 +819,11 @@ def plot_figure9(rate_values, d_values: list, errors_dict: dict,
             cl = compute_credible_contours(post, [0.50, 0.90, 0.99])
             Xi, Yi = np.meshgrid(ra_g, rb_g, indexing='ij')
             col = inset_colors_map.get(d_val, 'gray')
-            ax_inset.contour(Xi, Yi, post, levels=sorted(cl),
-                            colors=[col], linewidths=[1.0, 0.8, 0.6])
+            # Ensure levels are unique and strictly increasing
+            cl_sorted = sorted(set(cl))
+            if len(cl_sorted) >= 2:
+                ax_inset.contour(Xi, Yi, post, levels=cl_sorted,
+                                colors=[col], linewidths=[1.0, 0.8, 0.6][:len(cl_sorted)])
 
         # Mark true value
         true_rate = inset_data['rate']

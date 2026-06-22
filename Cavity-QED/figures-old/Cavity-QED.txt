@@ -1,0 +1,10 @@
+Cavity-QED
+https://www.youtube.com/watch?v=rnzQvxptG2E
+Cohen: https://hlevkin.com/hlevkin/90MathPhysBioBooks/Physics/QED/Cohen%20Tonnoudji%20%20Dupont-Roc%20Grynberg%20Introduction%20to%20QED.pdf
+
+Random Processes
+https://isl.stanford.edu/~abbas/ee278/lect06.pdf
+https://dlsun.github.io/probability/random-process.html
+https://ocw.mit.edu/courses/6-041sc-probabilistic-systems-analysis-and-applied-probability-fall-2013/pages/unit-iii/
+https://faculty.engineering.ucdavis.edu/gardner/wp-content/uploads/sites/146/2014/05/Introduction_to_Random_Processes_with_applications_to_Signal.pdf
+https://mechmat.knu.ua/wp-content/uploads/2023/08/gikhman-anatoly-v.-skorokhod-introduction-to-the-theory-of-random-processes-w.b.-saunders-1969.pdf
